@@ -20,6 +20,9 @@ require(readr)
 require(r02pro)
 wine <- read_csv("Wine_Quality_Data.csv")
 head(wine)
+```
+Data Preparation
+```{r}
 sum(wine$color == "white")
 range(wine$fixed_acidity)
 range(wine$volatile_acidity)
@@ -34,6 +37,7 @@ range(wine$sulphates)
 range(wine$alcohol)
 range(wine$quality)
 range(wine$color)
+
 
 sum(is.na(wine$fixed_acidity))
 sum(is.na(wine$fixed_acidity))
