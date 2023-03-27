@@ -8,7 +8,7 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
+Data Upload
 ```{r}
 library(haven)
 library(psych)
@@ -52,4 +52,6 @@ sum(is.na(wine$pH))
 sum(is.na(wine$sulphates))
 sum(is.na(wine$alcohol))
 sum(is.na(wine$quality))
+
+dim(wine)
 ```
