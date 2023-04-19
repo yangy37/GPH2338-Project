@@ -5,11 +5,8 @@ date: "2023-03-13"
 output: pdf_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 Data Upload
-```{r, warning=FALSE}
+```{r, message=FALSE, warning=FALSE}
 library(haven)
 library(psych)
 library(caret)
@@ -33,7 +30,7 @@ print(df)
 
 df1 <- df %>% na.omit()
 colSums(is.na(df1))
-df1<- df1[df1$`Cancer Type Detailed` == "Breast Invasive Ductal Carcinoma",]
+#df1<- df1[df1$`Cancer Type Detailed` == "Breast Invasive Ductal Carcinoma",]
 
 df2<-df1[,-c(1, 2, 3, 6)] # remove StudyID, Patient ID, Sample ID, Cancer Type
 print(df2)
@@ -64,7 +61,7 @@ df2_5 <- df2_4 %>%
 df2_6 <- df2_5 %>%
   mutate(Chemotherapy_No = as.integer(df2_5$Chemotherapy == "NO"))
 df2_7 <- df2_6 %>%
-  mutate(Chemotherapy_Yes = as.integer(df2_6$Chemotherapy == "Yes"))
+  mutate(Chemotherapy_Yes = as.integer(df2_6$Chemotherapy == "YES"))
 
 df2_8 <- df2_7 %>%
   mutate(Pam50_Claudin_low_subtype_LumA = 
@@ -90,10 +87,11 @@ df2_14 <- df2_13 %>%
 
 df2_15 <- df2_14 %>%
   mutate(ER_status_measured_by_IHC_Positive = 
-           as.integer(df2_14$`ER status measured by IHC` == "Positive"))
+           as.integer(df2_14$`ER status measured by IHC` == "Positve"))
 df2_16 <- df2_15 %>%
   mutate(ER_status_measured_by_IHC_Negative = 
            as.integer(df2_15$`ER status measured by IHC` == "Negative"))
+
 df2_17 <- df2_16 %>%
   mutate(ER_Status_Positive = as.integer(df2_16$`ER Status` == "Positive"))
 df2_18 <- df2_17 %>%
@@ -112,6 +110,7 @@ df2_21 <- df2_20 %>%
 df2_22 <- df2_21 %>%
   mutate(HER2_status_measured_by_SNP6_UNDEF = 
            as.integer(df2_21$`HER2 status measured by SNP6` == "UNDEF"))
+
 
 df2_23 <- df2_22 %>%
   mutate(HER2_Status_Positive = as.integer(df2_22$`HER2 Status` == "Positive"))
@@ -144,7 +143,7 @@ df2_31 <- df2_30 %>%
 df2_32 <- df2_31 %>%
   mutate(Hormone_Therapy_No = as.integer(df2_31$`Hormone Therapy` == "NO"))
 df2_33 <- df2_32 %>%
-  mutate(Hormone_Therapy_Yes = as.integer(df2_32$`Hormone Therapy` == "Yes"))
+  mutate(Hormone_Therapy_Yes = as.integer(df2_32$`Hormone Therapy` == "YES"))
 
 df2_34 <- df2_33 %>%
   mutate(Inferred_Menopausal_State_Pre = 
@@ -186,7 +185,7 @@ df2_46 <- df2_45 %>%
 df2_47 <- df2_46 %>%
   mutate(Radio_Therapy_No = as.integer(df2_46$`Radio Therapy` == "NO"))
 df2_48 <- df2_47 %>%
-  mutate(Radio_Therapy_Yes = as.integer(df2_47$`Radio Therapy` == "Yes"))
+  mutate(Radio_Therapy_Yes = as.integer(df2_47$`Radio Therapy` == "YES"))
 
 df2_49 <- df2_48 %>%
   mutate(Relapse_Free_Status_0 = 
@@ -240,9 +239,14 @@ df2_66 <- df2_65 %>%
   mutate(Integrative_Cluster_2 = as.integer(df2_65$`Integrative Cluster` == "2"))
 df2_67 <- df2_66 %>%
   mutate(Integrative_Cluster_5 = as.integer(df2_66$`Integrative Cluster` == "5"))
-df2_69 <- df2_67 %>%
+df2_68 <- df2_67 %>%
   mutate(Integrative_Cluster_4m = 
            as.integer(df2_67$`Integrative Cluster` == "4ER-"))
+
+
+df2_69 <- df2_68 %>%
+  mutate(Cancer_Type_Detailed= 
+           df2$`Cancer Type Detailed`)
 
 ```
 
@@ -274,13 +278,6 @@ df2_79 <- df2_78 %>%
 ```{r}
 df3 <- df2_79[,-c(1:35)]
 
-head(df3)
-summary(df3)
+pander(summary(df3),caption='Descriptive Statistics of The Data')
 ```
 
-```{r}
-model1 <- glm(df3$Overall_Month ~., data = df3)
-summary(model1)
-
-with(summary(model1), 1 - deviance/null.deviance)
-```
