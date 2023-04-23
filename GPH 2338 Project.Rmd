@@ -38,245 +38,201 @@ dim(df2)
 
 is_categorical <- sapply(df2, is.character)
 is_categorical
-
 ```
 
 Create Dummy Variable for Categorical Variable
 ```{r}
+df2$Type_of_Breast_Surgery = ifelse(df2$`Type of Breast Surgery` =="BREAST CONSERVING",1,0)
+df2$new_Chemotherapy = ifelse(df2$Chemotherapy =="NO",0,1)
+for (i in 1:nrow(df2)) {
+  if (df2[i,]$Cellularity == "High") {
+    df2$new_Cellularity[i] <- 3
+  }
+  else if (df2[i,]$Cellularity == "Moderate") {
+    df2$new_Cellularity[i] <- 2
+  }
+  else {
+    df2$new_Cellularity[i] <- 1
+  }
+}
 
-df2_1 <- df2 %>%
-  mutate(Type_of_Breast_Surgery_BREAST_CONSERVING = 
-           as.integer(df2$`Type of Breast Surgery` == "BREAST CONSERVING"))
-df2_2 <- df2_1 %>%
-  mutate(Type_of_Breast_Surgery_MASTECTOMY = 
-           as.integer(df2$`Type of Breast Surgery` == "MASTECTOMY"))
-
-df2_3 <- df2_2 %>%
-  mutate(Cellularity_High = as.integer(df2_2$Cellularity == "High"))
-df2_4 <- df2_3 %>%
-  mutate(Cellularity_Moderate = as.integer(df2_3$Cellularity == "Moderate"))
-df2_5 <- df2_4 %>%
-  mutate(Cellularity_Low = as.integer(df2_4$Cellularity == "Low"))
-
-df2_6 <- df2_5 %>%
-  mutate(Chemotherapy_No = as.integer(df2_5$Chemotherapy == "NO"))
-df2_7 <- df2_6 %>%
-  mutate(Chemotherapy_Yes = as.integer(df2_6$Chemotherapy == "YES"))
-
-df2_8 <- df2_7 %>%
-  mutate(Pam50_Claudin_low_subtype_LumA = 
-           as.integer(df2_7$`Pam50 + Claudin-low subtype` == "LumA"))
-df2_9 <- df2_8 %>%
-  mutate(Pam50_Claudin_low_subtype_LumB = 
-           as.integer(df2_8$`Pam50 + Claudin-low subtype` == "LumB"))
-df2_10 <- df2_9 %>%
-  mutate(Pam50_Claudin_low_subtype_Her2 = 
-           as.integer(df2_9$`Pam50 + Claudin-low subtype` == "Her2"))
-df2_11 <- df2_10 %>%
-  mutate(Pam50_Claudin_low_subtype_Basal = 
-           as.integer(df2_10$`Pam50 + Claudin-low subtype` == "Basal"))
-df2_12 <- df2_11 %>%
-  mutate(Pam50_Claudin_low_subtype_Normal = 
-           as.integer(df2_11$`Pam50 + Claudin-low subtype` == "Normal"))
-df2_13 <- df2_12 %>%
-  mutate(Pam50_Claudin_low_subtype_claudin_low = 
-           as.integer(df2_12$`Pam50 + Claudin-low subtype` == "claudin-low"))
-df2_14 <- df2_13 %>%
-  mutate(Pam50_Claudin_low_subtype_NC = 
-           as.integer(df2_13$`Pam50 + Claudin-low subtype` == "NC"))
-
-df2_15 <- df2_14 %>%
-  mutate(ER_status_measured_by_IHC_Positive = 
-           as.integer(df2_14$`ER status measured by IHC` == "Positve"))
-df2_16 <- df2_15 %>%
-  mutate(ER_status_measured_by_IHC_Negative = 
-           as.integer(df2_15$`ER status measured by IHC` == "Negative"))
-
-df2_17 <- df2_16 %>%
-  mutate(ER_Status_Positive = as.integer(df2_16$`ER Status` == "Positive"))
-df2_18 <- df2_17 %>%
-  mutate(ER_Status_Negative = as.integer(df2_17$`ER Status` == "Negative"))
+for (i in 1:nrow(df2)) {
+  if (df2[i,]$`Pam50 + Claudin-low subtype` == "LumA") {
+    df2$Pam50_Claudin_low_subtype[i] <- 1
+  }
+  else if (df2[i,]$`Pam50 + Claudin-low subtype` == "LumB") {
+    df2$Pam50_Claudin_low_subtype[i] <- 2
+  }
+  else if (df2[i,]$`Pam50 + Claudin-low subtype` == "Her2"){
+    df2$Pam50_Claudin_low_subtype[i] <- 3
+  }
+  else if (df2[i,]$`Pam50 + Claudin-low subtype` == "Basal"){
+    df2$Pam50_Claudin_low_subtype[i] <- 4
+  }
+  else if (df2[i,]$`Pam50 + Claudin-low subtype` == "Normal"){
+    df2$Pam50_Claudin_low_subtype[i] <- 5
+  }
+  else if (df2[i,]$`Pam50 + Claudin-low subtype` == "claudin-low"){
+    df2$Pam50_Claudin_low_subtype[i] <- 6
+  }
+  else if (df2[i,]$`Pam50 + Claudin-low subtype` == "NC"){
+    df2$Pam50_Claudin_low_subtype[i] <- 7
+  }
+}
 
 
-df2_19 <- df2_18 %>%
-  mutate(HER2_status_measured_by_SNP6_Neutral = 
-           as.integer(df2_18$`HER2 status measured by SNP6` == "NEUTRAL"))
-df2_20 <- df2_19 %>%
-  mutate(HER2_status_measured_by_SNP6_GAIN = 
-           as.integer(df2_19$`HER2 status measured by SNP6` == "GAIN"))
-df2_21 <- df2_20 %>%
-  mutate(HER2_status_measured_by_SNP6_LOSS = 
-           as.integer(df2_20$`HER2 status measured by SNP6` == "LOSS"))
-df2_22 <- df2_21 %>%
-  mutate(HER2_status_measured_by_SNP6_UNDEF = 
-           as.integer(df2_21$`HER2 status measured by SNP6` == "UNDEF"))
+df2$ER_status_measured_by_IHC = ifelse(df2$`ER status measured by IHC` =="Positve",1,0)
+df2$ER_Status_Positive = ifelse(df2$`ER Status` =="Positive",1,0)
+
+for (i in 1:nrow(df2)) {
+  if (df2[i,]$`HER2 status measured by SNP6` == "NEUTRAL") {
+    df2$HER2_status_measured_by_SNP6[i] <- 4
+  }
+  else if (df2[i,]$`HER2 status measured by SNP6` == "GAIN") {
+    df2$HER2_status_measured_by_SNP6[i] <- 3
+  }
+  else if (df2[i,]$`HER2 status measured by SNP6` == "LOSS"){
+    df2$HER2_status_measured_by_SNP6[i] <- 2
+  }
+  else if (df2[i,]$`HER2 status measured by SNP6` == "UNDEF"){
+    df2$HER2_status_measured_by_SNP6[i] <- 1
+  }
+}
+df2$HER2_Status_Positive = ifelse(df2$`HER2 Status` =="Positive",1,0)
+for (i in 1:nrow(df2)) {
+  if (df2[i,]$`Tumor Other Histologic Subtype` == "Ductal/NST") {
+    df2$Tumor_Other_Histologic_Subtype[i] <- 1
+  }
+  else if (df2[i,]$`Tumor Other Histologic Subtype` == "Mixed") {
+    df2$Tumor_Other_Histologic_Subtype[i] <- 2
+  }
+  else if (df2[i,]$`Tumor Other Histologic Subtype` == "Lobular"){
+    df2$Tumor_Other_Histologic_Subtype[i] <- 3
+  }
+  else if (df2[i,]$`Tumor Other Histologic Subtype` == "Tubular/ cribriform"){
+    df2$Tumor_Other_Histologic_Subtype[i] <- 4
+  }
+  else if (df2[i,]$`Tumor Other Histologic Subtype` == "Mucinous"){
+    df2$Tumor_Other_Histologic_Subtype[i] <- 5
+  }
+  else if (df2[i,]$`Tumor Other Histologic Subtype` == "Medullary"){
+    df2$Tumor_Other_Histologic_Subtype[i] <- 6
+  }
+  else if (df2[i,]$`Tumor Other Histologic Subtype` == "Other"){
+    df2$Tumor_Other_Histologic_Subtype[i] <- 7
+  }
+}
+
+for (i in 1:nrow(df2)) {
+  if (df2[i,]$`Oncotree Code` == "IDC") {
+    df2$Oncotree_Code[i] <- 4
+  }
+  else if (df2[i,]$`Oncotree Code` == "MDLC") {
+    df2$Oncotree_Code[i] <- 3
+  }
+  else if (df2[i,]$`Oncotree Code` == "ILC"){
+    df2$Oncotree_Code[i] <- 2
+  }
+  else if (df2[i,]$`Oncotree Code` == "IMMC"){
+    df2$Oncotree_Code[i] <- 1
+  }
+  else if (df2[i,]$`Oncotree Code` == "BREAST"){
+    df2$Oncotree_Code[i] <- 5
+  }
+}
+
+df2$Hormone_Therapy = ifelse(df2$`Hormone Therapy` =="NO",0,1)
+df2$Inferred_Menopausal_State = ifelse(df2$`Inferred Menopausal State` =="Pre",0,1)
+df2$Primary_Tumor_Laterality = ifelse(df2$`Primary Tumor Laterality` =="Right",0,1)
+df2$Overall_Survival_Status = ifelse(df2$`Overall Survival Status` =="1:DECEASED",1,0)
+df2$PR_Status = ifelse(df2$`PR Status` =="Positive",1,0)
+df2$Radio_Therapy = ifelse(df2$`Radio Therapy` =="NO",0,1)
+df2$Relapse_Free_Status = ifelse(df2$`Relapse Free Status` =="0:Not Recurred",0,1)
+for (i in 1:nrow(df2)) {
+  if (df2[i,]$`3-Gene classifier subtype` == "ER+/HER2- High Prolif") {
+    df2$Gene_classifier_subtype[i] <- 4
+  }
+  else if (df2[i,]$`3-Gene classifier subtype` == "ER+/HER2- Low Prolif") {
+    df2$Gene_classifier_subtype[i] <- 3
+  }
+  else if (df2[i,]$`3-Gene classifier subtype` == "ER-/HER2-"){
+    df2$Gene_classifier_subtype[i] <- 2
+  }
+  else if (df2[i,]$`3-Gene classifier subtype` == "HER2+"){
+    df2$Gene_classifier_subtype[i] <- 1
+  }
+}
+for (i in 1:nrow(df2)) {
+  if (df2[i,]$`Patient's Vital Status` == "Living") {
+    df2$Patients_Vital_Status[i] <- 3
+  }
+  else if (df2[i,]$`Patient's Vital Status` == "Died of Disease") {
+    df2$Patients_Vital_Status[i] <- 2
+  }
+  else if (df2[i,]$`Patient's Vital Status` == "Died of Other Causes"){
+    df2$Patients_Vital_Status[i] <- 1
+  }
+}
+
+for (i in 1:nrow(df2)) {
+  if (df2[i,]$`Integrative Cluster` == "4ER+") {
+    df2$Integrative_Cluster[i] <- 4.5
+  }
+  else if (df2[i,]$`Integrative Cluster` == "9") {
+    df2$Integrative_Cluster[i] <- 9
+  }
+  else if (df2[i,]$`Integrative Cluster` == "7"){
+    df2$Integrative_Cluster[i] <- 7
+  }
+  else if (df2[i,]$`Integrative Cluster` == "3"){
+    df2$Integrative_Cluster[i] <- 3
+  }
+  else if (df2[i,]$`Integrative Cluster` == "10"){
+    df2$Integrative_Cluster[i] <- 10
+  }
+  else if (df2[i,]$`Integrative Cluster` == "8"){
+    df2$Integrative_Cluster[i] <- 8
+  }
+  else if (df2[i,]$`Integrative Cluster` == "6"){
+    df2$Integrative_Cluster[i] <- 6
+  }
+  else if (df2[i,]$`Integrative Cluster` == "1"){
+    df2$Integrative_Cluster[i] <- 1
+  }
+  else if (df2[i,]$`Integrative Cluster` == "2"){
+    df2$Integrative_Cluster[i] <- 2
+  }
+  else if (df2[i,]$`Integrative Cluster` == "5"){
+    df2$Integrative_Cluster[i] <- 5
+  }
+  else if (df2[i,]$`Integrative Cluster` == "4ER-"){
+    df2$Integrative_Cluster[i] <- 3.5
+  }
+}
+names(df2)[names(df2) == "Cancer Type Detailed"] <- "Cancer_Type_Detailed"
 
 
-df2_23 <- df2_22 %>%
-  mutate(HER2_Status_Positive = as.integer(df2_22$`HER2 Status` == "Positive"))
-df2_24 <- df2_23 %>%
-  mutate(HER2_Status_Negative = as.integer(df2_23$`HER2 Status` == "Negative"))
-
-
-df2_25 <- df2_24 %>%
-  mutate(Tumor_Other_Histologic_Subtype_DN= 
-           as.integer(df2_24$`Tumor Other Histologic Subtype` == "Ductal/NST"))
-df2_26 <- df2_25 %>%
-  mutate(Tumor_Other_Histologic_Subtype_Mixed = 
-           as.integer(df2_25$`Tumor Other Histologic Subtype` == "Mixed"))
-df2_27 <- df2_26 %>%
-  mutate(Tumor_Other_Histologic_Subtype_Lobular = 
-           as.integer(df2_26$`Tumor Other Histologic Subtype` == "Lobular"))
-df2_28 <- df2_27 %>%
-  mutate(Tumor_Other_Histologic_Subtype_TC = 
-           as.integer(df2_27$`Tumor Other Histologic Subtype` == "Tubular/ cribriform"))
-df2_29 <- df2_28 %>%
-  mutate(Tumor_Other_Histologic_Subtype_Mucinous = 
-           as.integer(df2_28$`Tumor Other Histologic Subtype` == "Mucinous"))
-df2_30 <- df2_29 %>%
-  mutate(Tumor_Other_Histologic_Subtype_Medullary = 
-           as.integer(df2_29$`Tumor Other Histologic Subtype` == "Medullary"))
-df2_31 <- df2_30 %>%
-  mutate(Tumor_Other_Histologic_Subtype_Other = 
-           as.integer(df2_30$`Tumor Other Histologic Subtype` == "Other"))
-
-df2_32 <- df2_31 %>%
-  mutate(Hormone_Therapy_No = as.integer(df2_31$`Hormone Therapy` == "NO"))
-df2_33 <- df2_32 %>%
-  mutate(Hormone_Therapy_Yes = as.integer(df2_32$`Hormone Therapy` == "YES"))
-
-df2_34 <- df2_33 %>%
-  mutate(Inferred_Menopausal_State_Pre = 
-           as.integer(df2_33$`Inferred Menopausal State` == "Pre"))
-df2_35 <- df2_34 %>%
-  mutate(Inferred_Menopausal_State_Post = 
-           as.integer(df2_34$`Inferred Menopausal State` == "Post"))
-
-df2_36 <- df2_35 %>%
-  mutate(Primary_Tumor_Laterality_Right = 
-           as.integer(df2_35$`Primary Tumor Laterality` == "Right"))
-df2_37 <- df2_36 %>%
-  mutate(Primary_Tumor_Laterality_left = 
-           as.integer(df2_36$`Primary Tumor Laterality` == "Left"))
-
-df2_38 <- df2_37 %>%
-  mutate(Oncotree_Code_IDC = as.integer(df2_37$`Oncotree Code` == "IDC"))
-df2_39 <- df2_38 %>%
-  mutate(Oncotree_Code_MDLC = as.integer(df2_38$`Oncotree Code` == "MDLC"))
-df2_40 <- df2_39 %>%
-  mutate(Oncotree_Code_ILC = as.integer(df2_39$`Oncotree Code` == "ILC"))
-df2_41 <- df2_40 %>%
-  mutate(Oncotree_Code_IMMC = as.integer(df2_40$`Oncotree Code` == "IMMC"))
-df2_42 <- df2_41 %>%
-  mutate(Oncotree_Code_BREAST = as.integer(df2_41$`Oncotree Code` == "BREAST"))
-
-df2_43 <- df2_42 %>%
-  mutate(Overall_Survival_Status_0 = 
-           as.integer(df2_42$`Overall Survival Status` == "0:LIVING"))
-df2_44 <- df2_43 %>%
-  mutate(Overall_Survival_Status_1 = 
-           as.integer(df2_43$`Overall Survival Status` == "1:DECEASED"))
-
-df2_45 <- df2_44 %>%
-  mutate(PR_Status_Positive = as.integer(df2_44$`PR Status` == "Positive"))
-df2_46 <- df2_45 %>%
-  mutate(PR_Status_Negative = as.integer(df2_45$`PR Status` == "Negative"))
-
-df2_47 <- df2_46 %>%
-  mutate(Radio_Therapy_No = as.integer(df2_46$`Radio Therapy` == "NO"))
-df2_48 <- df2_47 %>%
-  mutate(Radio_Therapy_Yes = as.integer(df2_47$`Radio Therapy` == "YES"))
-
-df2_49 <- df2_48 %>%
-  mutate(Relapse_Free_Status_0 = 
-           as.integer(df2_48$`Relapse Free Status` == "0:Not Recurred"))
-df2_50 <- df2_49 %>%
-  mutate(Relapse_Free_Status_1 = 
-           as.integer(df2_49$`Relapse Free Status` == "1:Recurred"))
-
-
-df2_51 <- df2_50 %>%
-  mutate(Gene_classifier_subtype_ERH = 
-           as.integer(df2_50$`3-Gene classifier subtype` == "ER+/HER2- High Prolif"))
-df2_52 <- df2_51 %>%
-  mutate(Gene_classifier_subtype_ERL = 
-           as.integer(df2_51$`3-Gene classifier subtype` == "ER+/HER2- Low Prolif"))
-df2_53 <- df2_52 %>%
-  mutate(Gene_classifier_subtype_ERM = 
-           as.integer(df2_52$`3-Gene classifier subtype` == "ER-/HER2-"))
-df2_54 <- df2_53 %>%
-  mutate(Gene_classifier_subtype_HER = 
-           as.integer(df2_53$`3-Gene classifier subtype` == "HER2+"))
-
-df2_55 <- df2_54 %>%
-  mutate(Patients_Vital_Status_L = 
-           as.integer(df2_54$`Patient's Vital Status` == "Living"))
-df2_56 <- df2_55 %>%
-  mutate(Patients_Vital_Status_D = 
-           as.integer(df2_55$`Patient's Vital Status` == "Died of Disease"))
-df2_57 <- df2_56 %>%
-  mutate(Patients_Vital_Status_DO = 
-           as.integer(df2_56$`Patient's Vital Status` == "Died of Other Causes"))
-
-df2_58 <- df2_57 %>%
-  mutate(Integrative_Cluster_4p = 
-           as.integer(df2_57$`Integrative Cluster` == "4ER+"))
-df2_59 <- df2_58 %>%
-  mutate(Integrative_Cluster_9 = as.integer(df2_58$`Integrative Cluster` == "9"))
-df2_60 <- df2_59 %>%
-  mutate(Integrative_Cluster_7 = as.integer(df2_59$`Integrative Cluster` == "7"))
-df2_61 <- df2_60 %>%
-  mutate(Integrative_Cluster_3 = as.integer(df2_60$`Integrative Cluster` == "3"))
-df2_62 <- df2_61 %>%
-  mutate(Integrative_Cluster_10 = as.integer(df2_61$`Integrative Cluster` == "10"))
-df2_63 <- df2_62 %>%
-  mutate(Integrative_Cluster_8 = as.integer(df2_62$`Integrative Cluster` == "8"))
-df2_64 <- df2_63 %>%
-  mutate(Integrative_Cluster_6 = as.integer(df2_63$`Integrative Cluster` == "6"))
-df2_65 <- df2_64 %>%
-  mutate(Integrative_Cluster_1 = as.integer(df2_64$`Integrative Cluster` == "1"))
-df2_66 <- df2_65 %>%
-  mutate(Integrative_Cluster_2 = as.integer(df2_65$`Integrative Cluster` == "2"))
-df2_67 <- df2_66 %>%
-  mutate(Integrative_Cluster_5 = as.integer(df2_66$`Integrative Cluster` == "5"))
-df2_68 <- df2_67 %>%
-  mutate(Integrative_Cluster_4m = 
-           as.integer(df2_67$`Integrative Cluster` == "4ER-"))
-
-
-df2_69 <- df2_68 %>%
-  mutate(Cancer_Type_Detailed= 
-           df2$`Cancer Type Detailed`)
 
 ```
 
 
 Create Dummy Variable for Numeric Variable
 ```{r}
-df2_70 <- df2_69 %>%
-  mutate(Age_at_Diagnosis = df2_69$`Age at Diagnosis`)
-df2_71 <- df2_70 %>%
-  mutate(Neo_Grade = df2_70$`Neoplasm Histologic Grade`)
-df2_72 <- df2_71 %>%
-  mutate(Lymph = df2_71$`Lymph nodes examined positive`)
-df2_73 <- df2_72 %>%
-  mutate(Mutation = df2_72$`Mutation Count`)
-df2_74 <- df2_73 %>%
-  mutate(Nottingham = df2_73$`Nottingham prognostic index`)
-df2_75 <- df2_74 %>%
-  mutate(Overall_Month = df2_74$`Overall Survival (Months)`)
-df2_76 <- df2_75 %>%
-  mutate(Relapse_Month = df2_75$`Relapse Free Status (Months)`)
-df2_77 <- df2_76 %>%
-  mutate(TMB = df2_76$`TMB (nonsynonymous)`)
-df2_78 <- df2_77 %>%
-  mutate(Tumor_Size = df2_77$`Tumor Size`)
-df2_79 <- df2_78 %>%
-  mutate(Tumor_Stage = df2_78$`Tumor Stage`)
+names(df2)[names(df2) == "Age at Diagnosis"] <- "Age"
+names(df2)[names(df2) == "Neoplasm Histologic Grade"] <- "Neo_Grade"
+names(df2)[names(df2) == "Lymph nodes examined positive"] <- "Lymph"
+names(df2)[names(df2) == "Mutation Count"] <- "Mutation"
+names(df2)[names(df2) == "Nottingham prognostic index"] <- "Nottingham"
+names(df2)[names(df2) == "Overall Survival (Months)"] <- "Overall_Month"
+names(df2)[names(df2) == "Relapse Free Status (Months)"] <- "Relapse_Month"
+names(df2)[names(df2) == "TMB (nonsynonymous)"] <- "TMB"
+names(df2)[names(df2) == "Tumor Size"] <- "Tumor_Size"
+names(df2)[names(df2) == "Tumor Stage"] <- "Tumor_Stage"
+df2
 ```
 
 ```{r}
-df3 <- df2_79[,-c(1:35)]
+df3 <- df2[,-c(2,4:6,8,9,11:17,21,23:25,27:32,35)]
 
 pander(summary(df3),caption='Descriptive Statistics of The Data')
 ```
