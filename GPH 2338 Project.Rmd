@@ -19,6 +19,10 @@ library(pander)
 library(readr)
 library(r02pro)
 library(plyr)
+library(tree)
+library(gbm) 
+library(caret) 
+library(leaps) # For model selection
 library(readr)
 ```
 Data Preparation
@@ -30,7 +34,6 @@ print(df)
 
 df1 <- df %>% na.omit()
 colSums(is.na(df1))
-#df1<- df1[df1$`Cancer Type Detailed` == "Breast Invasive Ductal Carcinoma",]
 
 df2<-df1[,-c(1, 2, 3, 6)] # remove StudyID, Patient ID, Sample ID, Cancer Type
 print(df2)
@@ -210,9 +213,10 @@ for (i in 1:nrow(df2)) {
   }
 }
 names(df2)[names(df2) == "Cancer Type Detailed"] <- "Cancer_Type_Detailed"
+df2<- df2[df2$Cancer_Type_Detailed == "Breast Invasive Ductal Carcinoma",]
 
 
-
+df2
 ```
 
 
@@ -232,8 +236,157 @@ df2
 ```
 
 ```{r}
-df3 <- df2[,-c(2,4:6,8,9,11:17,21,23:25,27:32,35)]
-
+df3 <- df2[,-c(2,3,4:6,8,9,11:17,21,23:25,27:32,35)]
+df3
 pander(summary(df3),caption='Descriptive Statistics of The Data')
+```
+
+```{r}
+table(df3$cancer)
+
+
+pander(head(df3),caption='Head of data selection')
+```
+
+```{r}
+df3 %>%
+  keep(is.numeric) %>%
+  gather() %>%
+  ggplot(aes(value)) +
+  facet_wrap(~ key, scales = "free") +
+  geom_histogram()
+
+tr_ind <- 1:(nrow(df3) * 0.7)
+df3_tr <- df3[tr_ind, ]
+nrow(df3_tr)
+df3_te <- df3[-tr_ind, ]
+nrow(df3_te)
+```
+
+variable selection
+```{r}
+
+set.seed(0)
+fit_BIC <- regsubsets(Overall_Survival_Status ~ ., data = df3_tr)
+summary_BIC <- summary(fit_BIC)
+summary_BIC
+min_BIC <- which.min(summary_BIC$bic)
+min_BIC
+coef_BIC = coef(fit_BIC,min_BIC)
+coef_BIC
+```
+
+
+#Forward Stepwise Selection with Adjusted R squared
+
+
+```{r}
+fit_FORWARD <- regsubsets(Overall_Survival_Status ~ ., data = df3_tr, method = "forward", nvmax = 10)
+as.factor(df3_tr$Cancer_Type_Detailed)
+summary_FORWARD <- summary(fit_FORWARD)
+max_FORWARD <- which.max(summary_FORWARD$adjr2)
+max_FORWARD
+coef_FORWARD = coef(fit_FORWARD, max_FORWARD)
+coef_FORWARD
+```
+
+
+
+
+Backward Stepwise Selection with Cp
+
+```{r}
+fit_BACKWARD <- regsubsets(Overall_Survival_Status ~ ., data = df3_tr, method = "backward", nvmax = ncol(df3_tr)-1)
+summary_BACKWARD <- summary(fit_BACKWARD)
+mix_BACKWARD <- which.min(summary_BACKWARD$cp)
+mix_BACKWARD
+coef_BACKWARD = coef(fit_BACKWARD, mix_BACKWARD)
+coef_BACKWARD
+```
+```{r, warning=FALSE}
+set.seed(0)
+predict_BIC = glm(Overall_Survival_Status~Relapse_Month + Tumor_Size + Integrative_Cluster  + Cohort + ER_Status_Positive + Hormone_Therapy ,df3_tr,family = "binomial") 
+pred_BIC = round(predict(predict_BIC,df3_te,type = "response")) 
+error_BIC = mean((df3_te$Overall_Survival_Status - pred_BIC)^2) 
+error_BIC
+
+
+predict_FORWARD = glm(Overall_Survival_Status ~ Cohort + Neo_Grade + Overall_Month + Relapse_Month + new_Cellularity + Pam50_Claudin_low_subtype + HER2_Status_Positive + Relapse_Free_Status + Gene_classifier_subtype + Patients_Vital_Status + Integrative_Cluster ,df3_tr,family = "binomial") 
+pred_FORWARD = round(predict(predict_FORWARD,df3_te,type = "response"))
+#pred_FORWARD
+error_FORWARD =  mean((df3_te$Overall_Survival_Status - pred_FORWARD)^2) 
+#error_FORWARD
+
+predict_BACKWARD = glm(Overall_Survival_Status ~  Age+ Cohort  +  Mutation + Overall_Month + Relapse_Month + Pam50_Claudin_low_subtype + HER2_Status_Positive + Inferred_Menopausal_State + Relapse_Free_Status + Gene_classifier_subtype + Patients_Vital_Status + Integrative_Cluster + Oncotree_Code,df3_tr,family = "binomial") 
+pred_BACKWARD = round(predict(predict_BACKWARD,df3_tr,type = "response")) 
+error_BACKWARD = mean((df3_te$Overall_Survival_Status - pred_BACKWARD)^2) 
+error_BACKWARD
+
+which.min(data.frame(error_BIC, error_BACKWARD)) # All the errors listed
+
+formula = Overall_Survival_Status ~ Cohort + Neo_Grade + Overall_Month + Relapse_Month + new_Cellularity + Pam50_Claudin_low_subtype + HER2_Status_Positive + Relapse_Free_Status + Gene_classifier_subtype + Patients_Vital_Status + Integrative_Cluster
+```
+
+Model 1
+```{r, warning=FALSE}
+set.seed(0)
+library(randomForest)
+rf_model <- randomForest(formula, data = df3_tr,ntree = 10,importance = T)
+predictions <- predict(rf_model, df3_te)
+mean((df3_te$Overall_Survival_Status - predictions)^2)
+```
+
+Model 2
+```{r, warning=FALSE}
+set.seed(0)
+knn_test_error <- vector()
+new <- data.frame(k=numeric(), knn_test_error)
+
+for(i in seq(from = 1, to = 100, by = 5)) {
+  knmodel <- knn3(formula, df3_tr, k = i)
+  knn_test <- predict(knmodel, newdata = df3_te)
+  knn_test_error <- mean((knn_test - df3_te$Overall_Survival_Status)^2)
+  new[i,] <- c(i, knn_test_error)
+}
+frame = data.frame(knn_test_error,1:24)
+data.frame(knn_test_error,1:24)[which.min(frame$knn_test_error),]
+```
+Model 3 Lasso
+```{r}
+x_tr<-as.matrix(df3_tr[,c(1:23, 25:ncol(df3_tr))])
+y_tr<-as.matrix(df3_tr[,24])
+x_te<-as.matrix(df3_te[,c(1:23, 25:ncol(df3_te))])
+y_te<-as.matrix(df3_te[,24])
+
+library(glmnet)
+set.seed(0)
+ridge<-glmnet(x=x_tr,y=y_tr,alpha=0)
+#plot(ridge,xvar='lambda')
+
+ridge_cv<-cv.glmnet(x=x_tr,y=y_tr,type.measure='mse',nfold=10,alpha=0)
+
+best_ridge<-coef(ridge_cv, s = ridge_cv$lambda.min)
+
+result_ridge<-predict(ridge_cv,newx=x_te,interval='prediction') 
+(err_ridge<-mean((y_te-result_ridge)^2))
+```
+
+Model 4 Lasso
+```{r}
+set.seed(0)
+lasso<-glmnet(x=x_tr,y=y_tr,alpha=1)
+#plot(lasso,xvar='lambda')
+```
+```{r}
+lasso_cv<-cv.glmnet(x=x_tr,y=y_tr,type.measure='mse',nfold=10,alpha=1,keep=T)
+#lasso_cv$lambda.min
+
+result_la<-predict(lasso_cv,newx=x_te,interval='prediction') 
+(err_la<-mean((y_te-result_la)^2))
+```
+
+Model Selection
+```{r}
+
 ```
 
