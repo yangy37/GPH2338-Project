@@ -1,6 +1,6 @@
 ---
 title: "GPH 2338 Project"
-author: "Yi Yang"
+author: "Yi Yang & Sohaib Hasan & Guangyu Yang"
 date: "2023-03-13"
 output: pdf_document
 ---
@@ -35,17 +35,15 @@ print(df)
 
 df1 <- df %>% na.omit()
 colSums(is.na(df1))
-
-df2<-df1[,-c(1, 2, 3, 6)] # remove StudyID, Patient ID, Sample ID, Cancer Type
+df2<-df1[,-c(1, 2, 3, 6, 27)] # remove StudyID, Patient ID, Sample ID, Cancer Type
 print(df2)
 dim(df2)
-
 is_categorical <- sapply(df2, is.character)
 is_categorical
 ```
 
 Create Dummy Variable for Categorical Variable
-```{r, warning=FALSE}
+```{r, warning=FALSE, message=FALSE}
 df2$Type_of_Breast_Surgery = ifelse(df2$`Type of Breast Surgery` =="BREAST CONSERVING",1,0)
 df2$new_Chemotherapy = ifelse(df2$Chemotherapy =="NO",0,1)
 for (i in 1:nrow(df2)) {
@@ -91,16 +89,9 @@ df2$Tumor_Other_Histologic_Subtype_Ductal = ifelse(df2$`Tumor Other Histologic S
 df2$Tumor_Other_Histologic_Subtype_Tubular = ifelse(df2$`Tumor Other Histologic Subtype` == "Tubular/ cribriform",1,0)
 df2$Tumor_Other_Histologic_Subtype_Medullary = ifelse(df2$`Tumor Other Histologic Subtype` == "Medullary",1,0)
 
-
-#df2$Oncotree_Code_IDC = ifelse(df2$`Oncotree Code` == "IDC",1,0)
-#df2$Oncotree_Code_MLDC = ifelse(df2$`Oncotree Code` == "MLDC",1,0)
-#df2$Oncotree_Code_ILC = ifelse(df2$`Oncotree Code` == "ILC",1,0)
-#df2$Oncotree_Code_IMMC = ifelse(df2$`Oncotree Code` == "IMMC",1,0)
-#df2$Oncotree_Code_BREAST = ifelse(df2$`Oncotree Code` == "BREAST",1,0)
 df2$Hormone_Therapy = ifelse(df2$`Hormone Therapy` =="NO",0,1)
 df2$Inferred_Menopausal_State = ifelse(df2$`Inferred Menopausal State` =="Pre",0,1)
 df2$Primary_Tumor_Laterality = ifelse(df2$`Primary Tumor Laterality` =="Right",0,1)
-df2$Overall_Survival_Status = ifelse(df2$`Overall Survival Status` =="1:DECEASED",1,0)
 df2$PR_Status = ifelse(df2$`PR Status` =="Positive",1,0)
 df2$Radio_Therapy = ifelse(df2$`Radio Therapy` =="NO",0,1)
 df2$Relapse_Free_Status = ifelse(df2$`Relapse Free Status` =="0:Not Recurred",0,1)
@@ -110,56 +101,18 @@ df2$Gene_classifier_subtype_ERL = ifelse(df2$`3-Gene classifier subtype` == "ER+
 df2$Gene_classifier_subtype_ERM = ifelse(df2$`3-Gene classifier subtype` == "ER-/HER2-",1,0)
 df2$Gene_classifier_subtype_ERP = ifelse(df2$`3-Gene classifier subtype` == "HER2+",1,0)
 
-df2$Patients_Vital_Status_Living = ifelse(df2$`Patient's Vital Status` == "Living",1,0)
-df2$Patients_Vital_Status_Died = ifelse(df2$`Patient's Vital Status` == "Died of Disease",1,0)
-df2$Patients_Vital_Status_Do = ifelse(df2$`Patient's Vital Status` == "Died of Other Causes",1,0)
+df2$Overall_Survival_Status = ifelse(df2$`Patient's Vital Status` == "Living",1,0)
 
-
-for (i in 1:nrow(df2)) {
-  if (df2[i,]$`Integrative Cluster` == "4ER+") {
-    df2$Integrative_Cluster[i] <- 4.5
-  }
-  else if (df2[i,]$`Integrative Cluster` == "9") {
-    df2$Integrative_Cluster[i] <- 9
-  }
-  else if (df2[i,]$`Integrative Cluster` == "7"){
-    df2$Integrative_Cluster[i] <- 7
-  }
-  else if (df2[i,]$`Integrative Cluster` == "3"){
-    df2$Integrative_Cluster[i] <- 3
-  }
-  else if (df2[i,]$`Integrative Cluster` == "10"){
-    df2$Integrative_Cluster[i] <- 10
-  }
-  else if (df2[i,]$`Integrative Cluster` == "8"){
-    df2$Integrative_Cluster[i] <- 8
-  }
-  else if (df2[i,]$`Integrative Cluster` == "6"){
-    df2$Integrative_Cluster[i] <- 6
-  }
-  else if (df2[i,]$`Integrative Cluster` == "1"){
-    df2$Integrative_Cluster[i] <- 1
-  }
-  else if (df2[i,]$`Integrative Cluster` == "2"){
-    df2$Integrative_Cluster[i] <- 2
-  }
-  else if (df2[i,]$`Integrative Cluster` == "5"){
-    df2$Integrative_Cluster[i] <- 5
-  }
-  else if (df2[i,]$`Integrative Cluster` == "4ER-"){
-    df2$Integrative_Cluster[i] <- 3.5
-  }
-}
 names(df2)[names(df2) == "Cancer Type Detailed"] <- "Cancer_Type_Detailed"
 df2<- df2[df2$Cancer_Type_Detailed == "Breast Invasive Ductal Carcinoma",]
 
 
-df2
+#df2
 ```
 
 
 Create Dummy Variable for Numeric Variable
-```{r}
+```{r, warning=FALSE, message=FALSE}
 names(df2)[names(df2) == "Age at Diagnosis"] <- "Age"
 names(df2)[names(df2) == "Neoplasm Histologic Grade"] <- "Neo_Grade"
 names(df2)[names(df2) == "Lymph nodes examined positive"] <- "Lymph"
@@ -170,20 +123,21 @@ names(df2)[names(df2) == "Relapse Free Status (Months)"] <- "Relapse_Month"
 names(df2)[names(df2) == "TMB (nonsynonymous)"] <- "TMB"
 names(df2)[names(df2) == "Tumor Size"] <- "Tumor_Size"
 names(df2)[names(df2) == "Tumor Stage"] <- "Tumor_Stage"
+df2
 ```
 
-```{r}
-df3 <- df2[,-c(2,3,4:6,8,9,11:17,21,23:25,27:32,35)]
+```{r, warning=FALSE, message=FALSE}
+df3 <- df2[,-c(2,3,4:6,8,9,11:17,21,23, 24, 26,27:30, 34)]
 df3
 pander(summary(df3),caption='Descriptive Statistics of The Data')
 
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 pander(head(df3),caption='Head of data selection')
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 df3 %>%
   keep(is.numeric) %>%
   gather() %>%
@@ -191,145 +145,246 @@ df3 %>%
   facet_wrap(~ key, scales = "free") +
   geom_histogram()
 
-tr_ind <- 1:(nrow(df3) * 0.7)
-df3_tr <- df3[tr_ind, ]
-nrow(df3_tr)
+tr_ind <- 1:(nrow(df3) * 0.8)
+df3_tall <- df3[tr_ind, ]
+nrow(df3_tall)
 df3_te <- df3[-tr_ind, ]
 nrow(df3_te)
+
+tr_ind2 <- 1:(nrow(df3_tall) * 0.8)
+df3_tr <- df3_tall[tr_ind2, ]
+nrow(df3_tr)
+df3_va <- df3_tall[-tr_ind2, ]
+nrow(df3_va)
 ```
 
 variable selection
-```{r}
+```{r,warning=FALSE,message=FALSE}
 set.seed(0)
 fit_BIC <- regsubsets(Overall_Survival_Status ~ ., data = df3_tr)
 summary_BIC <- summary(fit_BIC)
-summary_BIC
 min_BIC <- which.min(summary_BIC$bic)
 min_BIC
 coef_BIC = coef(fit_BIC,min_BIC)
 coef_BIC
+formula1 <- Overall_Survival_Status ~ Age + Cohort + Overall_Month + Relapse_Month + Type_of_Breast_Surgery  + Gene_classifier_subtype_ERL 
 ```
-
-
-#Forward Stepwise Selection with Adjusted R squared
-
-
-```{r}
-#fit_FORWARD <- regsubsets(Overall_Survival_Status ~ ., data = df3_tr, method = "forward", nvmax = 10)
-#as.factor(df3_tr$Cancer_Type_Detailed)
-#summary_FORWARD <- summary(fit_FORWARD)
-#max_FORWARD <- which.max(summary_FORWARD$adjr2)
-#max_FORWARD
-#coef_FORWARD = coef(fit_FORWARD, max_FORWARD)
-#coef_FORWARD
-```
-
 
 
 
 Backward Stepwise Selection with Cp
 
-```{r}
+```{r,warning=FALSE,message=FALSE}
 fit_BACKWARD <- regsubsets(Overall_Survival_Status ~ ., data = df3_tr, method = "backward", nvmax = ncol(df3_tr)-1)
 summary_BACKWARD <- summary(fit_BACKWARD)
 mix_BACKWARD <- which.min(summary_BACKWARD$cp)
 mix_BACKWARD
 coef_BACKWARD = coef(fit_BACKWARD, mix_BACKWARD)
 coef_BACKWARD
-```
-```{r, warning=FALSE}
-set.seed(0)
-predict_BIC = glm(Overall_Survival_Status~Age + Cohort + Neo_Grade  + Lymph + Mutation + Nottingham + Tumor_Other_Histologic_Subtype_Medullary + Gene_classifier_subtype_ERP ,df3_tr,family = "binomial") 
-pred_BIC = round(predict(predict_BIC,df3_te,type = "response")) 
-error_BIC = mean((df3_te$Overall_Survival_Status - pred_BIC)^2) 
-error_BIC
-
-
-#predict_FORWARD = glm(Overall_Survival_Status ~ Cohort + Neo_Grade + Overall_Month + Relapse_Month + new_Cellularity + Pam50_Claudin_low_subtype + HER2_Status_Positive + Relapse_Free_Status + Gene_classifier_subtype + Patients_Vital_Status + Integrative_Cluster ,df3_tr,family = "binomial") 
-#pred_FORWARD = round(predict(predict_FORWARD,df3_te,type = "response"))
-#pred_FORWARD
-#error_FORWARD =  mean((df3_te$Overall_Survival_Status - pred_FORWARD)^2) 
-#error_FORWARD
-
-predict_BACKWARD = glm(Overall_Survival_Status ~  Age+ Cohort  +  Lymph + Overall_Month + Relapse_Month + Tumor_Stage + Pam50_Claudin_low_subtype_Luma + Pam50_Claudin_low_subtype_LumB + Pam50_Claudin_low_subtype_Basal + Pam50_Claudin_low_subtype_claudin + HER2_Status_Positive + Tumor_Other_Histologic_Subtype_Tubular + Hormone_Therapy + PR_Status + Gene_classifier_subtype_ERH + Gene_classifier_subtype_ERL + Gene_classifier_subtype_ERM + Pam50_Claudin_low_subtype_NC + Tumor_Other_Histologic_Subtype_Medullary,df3_tr,family = "binomial") 
-pred_BACKWARD = round(predict(predict_BACKWARD,df3_tr,type = "response")) 
-error_BACKWARD = mean((df3_te$Overall_Survival_Status - pred_BACKWARD)^2) 
-error_BACKWARD
-
-which.min(data.frame(error_BIC, error_BACKWARD)) # All the errors listed
-
-formula = Overall_Survival_Status~Age + Cohort + Neo_Grade  + Lymph + Mutation + Nottingham + Tumor_Other_Histologic_Subtype_Medullary + Gene_classifier_subtype_ERP
+formula2 <- Overall_Survival_Status ~ Age + Cohort + Lymph + Overall_Month + Relapse_Month + Tumor_Stage + Type_of_Breast_Surgery +  new_Chemotherapy+  Pam50_Claudin_low_subtype_Luma + Pam50_Claudin_low_subtype_Basal + Pam50_Claudin_low_subtype_claudin  +  HER2_Status_Positive + Gene_classifier_subtype_ERH+  Gene_classifier_subtype_ERL
 ```
 
-Model 1
+
 ```{r, warning=FALSE, message=FALSE}
-set.seed(0)
-library(randomForest)
-rf_model <- randomForest(formula, data = df3_tr,ntree = 10,importance = T)
-predictions <- predict(rf_model, df3_te)
-error_rf <- mean((df3_te$Overall_Survival_Status - predictions)^2)
-error_rf
+x_tr<-as.matrix(df3_tr[,c(1:ncol(df3_tr) - 1)])
+y_tr<-as.matrix(df3_tr[,ncol(df3_tr)])
+x_te<-as.matrix(df3_te[,c(1:ncol(df3_tr) - 1)])
+y_te<-as.matrix(df3_te[,ncol(df3_tr)])
 ```
 
-Model 2
-```{r, warning=FALSE}
-set.seed(0)
-knn_test_error <- vector()
-new <- data.frame(k=numeric(), knn_test_error)
-
-for(i in seq(from = 1, to = 100, by = 5)) {
-  knmodel <- knn3(formula, df3_tr, k = i)
-  knn_test <- predict(knmodel, newdata = df3_te)
-  knn_test_error <- mean((knn_test - df3_te$Overall_Survival_Status)^2)
-  new[i,] <- c(i, knn_test_error)
-}
-frame = data.frame(knn_test_error,1:24)
-error_knn <- data.frame(knn_test_error,1:24)[which.min(frame$knn_test_error),]
-error_knn
-```
-Model 3 Ridge
-```{r, message=FALSE}
-x_tr<-as.matrix(df3_tr[,c(1:23, 25:ncol(df3_tr))])
-y_tr<-as.matrix(df3_tr[,24])
-x_te<-as.matrix(df3_te[,c(1:23, 25:ncol(df3_te))])
-y_te<-as.matrix(df3_te[,24])
-
+#Elastic Net
+```{r,warning=FALSE,message=FALSE}
 library(glmnet)
 set.seed(0)
-ridge<-glmnet(x=x_tr,y=y_tr,alpha=0)
-#plot(ridge,xvar='lambda')
-
-ridge_cv<-cv.glmnet(x=x_tr,y=y_tr,type.measure='mse',nfold=10,alpha=0)
-
-best_ridge<-coef(ridge_cv, s = ridge_cv$lambda.min)
-
-result_ridge<-predict(ridge_cv,newx=x_te,interval='prediction') 
-error_ridge <- (err_ridge<-mean((y_te-result_ridge)^2))
-error_ridge
+error_lasso_array <- c()
+lasso_cv_array <- c()
+for (i in 3:10) {
+  for (j in seq(0, 1, 0.05)){
+    lasso_cv<-cv.glmnet(x=x_tr,y=y_tr,type.measure='mse',nfold=i,alpha=j,keep=T)
+    result_la<-predict(lasso_cv,newx=x_te,interval='prediction') 
+    error_lasso <- (err_la<-mean((y_te-result_la)^2))
+    lasso_cv_array[ (i-3)*20 + j * 20] <- lasso_cv
+    error_lasso_array[ (i-3)*20 + j * 20] <- error_lasso
+  }
+}
+minlasso <- which.min(error_lasso_array)
+minlasso
+lasso_cv <- cv.glmnet(x=x_tr,y=y_tr,type.measure='mse',nfold=3,alpha=0.7,keep=T)
+lasso_cv$lambda.min
+coef_lasso = coef(lasso_cv, s=lasso_cv$lambda.min)
+coef_lasso
+formula3 <- Overall_Survival_Status ~ Age + Cohort + Lymph + Overall_Month + Relapse_Month + Tumor_Stage + Type_of_Breast_Surgery + new_Chemotherapy + Pam50_Claudin_low_subtype_Luma + Pam50_Claudin_low_subtype_LumB + Pam50_Claudin_low_subtype_Her2 + Pam50_Claudin_low_subtype_Normal + Pam50_Claudin_low_subtype_claudin + Pam50_Claudin_low_subtype_NC + HER2_status_measured_by_SNP6 + Tumor_Other_Histologic_Subtype_Medullary + Hormone_Therapy + Inferred_Menopausal_State + Primary_Tumor_Laterality + PR_Status + Radio_Therapy + Relapse_Free_Status + Gene_classifier_subtype_ERH
 ```
 
-Model 4 Lasso
-```{r}
+
+```{r, warning=FALSE, message=FALSE}
+library(pROC)
 set.seed(0)
-lasso<-glmnet(x=x_tr,y=y_tr,alpha=1)
-#plot(lasso,xvar='lambda')
+predict_BIC = glm(formula1,df3_tr,family = "binomial") 
+pred_BIC = round(predict(predict_BIC,df3_te,type = "response")) 
+roc_bic <- roc(df3_te$Overall_Survival_Status,pred_BIC,smooth=F)
+auc(roc_bic)
 
-lasso_cv<-cv.glmnet(x=x_tr,y=y_tr,type.measure='mse',nfold=10,alpha=1,keep=T)
-#lasso_cv$lambda.min
+predict_BACKWARD  = glm(formula2,df3_tr,family = "binomial") 
+pred_BACKWARD = round(predict(predict_BACKWARD,df3_te,type = "response")) 
+roc_back <- roc(df3_te$Overall_Survival_Status,pred_BACKWARD,smooth=F)
+auc(roc_back)
 
-result_la<-predict(lasso_cv,newx=x_te,interval='prediction') 
-error_lasso <- (err_la<-mean((y_te-result_la)^2))
-error_lasso
+predict_net = glm(formula3,df3_tr,family = "binomial")
+pred_net = round(predict(predict_net,df3_te,type = "response")) 
+roc_net <- roc(df3_te$Overall_Survival_Status,pred_net,smooth=F)
+auc(roc_net)
+
+which.max(data.frame(auc(roc_bic),  auc(roc_back), auc(roc_net))) # All the errors listed
 ```
 
-Model Selection
-```{r}
-which.min(data.frame(error_rf, error_knn, error_ridge, error_lasso)) # All the errors listed
-```
-Model Present
+
 cross validation
-```{r}
+#Random Forest
+```{r,message=FALSE,warning=FALSE}
+library(randomForest)
+set.seed(0)
+K <- 10
+n_all <- nrow(df3_tr)
+n_all2 <- nrow(df3_va)
+fold_auc_rf<-as.numeric()
+auc_all <- c()
+fold_ind <- sample(1:K, n_all, replace = TRUE)
+fold_ind2 <- sample(1:K, n_all2, replace = TRUE)
+  
+for (i in c(10,100,10)) {
+  for (j in 1:K) {
+    rf_model <- randomForest(formula3, data = df3_tr[fold_ind != j, ], ntree = i, importance = T)
+    pred_prob <- predict(rf_model, newdata = df3_va[fold_ind2 == j, ], type = "response")
+    pred_label <- ifelse(pred_prob > 0.5, 1, 0)
+    roc_rf <- roc(df3_va[fold_ind2 == j, ]$Overall_Survival_Status,pred_label,smooth=F)
+    auc_all[((i/10 -1)*10) + j] <- auc(roc_rf)
+  }
+}
+which.max(auc_all)
+
+rf_model <- randomForest(formula3, data = df3_tr, ntree = 30, importance = T)
+pred_prob <- predict(rf_model, newdata = df3_te, type = "response")
+rf_pred<-as.character(pred_prob)
+rf_pred<-as.numeric(pred_prob)
+rf_roc<-roc(df3_te$Overall_Survival_Status,rf_pred,smooth=F)
+
+plot(rf_roc, auc.polygon=T, auc.polygon.col='pink', smooth=F,print.auc=T, max.auc.polygon=T,print.thres.cex=0.8, lty=1,main='ROC',print.thres=T)
+
+rf_auc <- auc(rf_roc)
+rf_auc
+
+plot(rf_model)
+```
+#KNN
+```{r,warning=FALSE,message=FALSE}
+set.seed(0)
+K <- 10
+n_all <- nrow(df3_tr)
+n_all2 <- nrow(df3_va)
+fold_auc_rf<-as.numeric()
+auc_all3 <- c()
+fold_ind <- sample(1:K, n_all, replace = TRUE)
+fold_ind2 <- sample(1:K, n_all2, replace = TRUE)
+
+table(df3$Overall_Survival_Status)
+
+for (j in 2:K) {
+  for (i in 5:20) {
+     knn_model <- knn3(formula3 <- Overall_Survival_Status ~ Age + Cohort + Lymph + Overall_Month + Relapse_Month + Tumor_Stage + Type_of_Breast_Surgery + new_Chemotherapy + Pam50_Claudin_low_subtype_Luma + Pam50_Claudin_low_subtype_LumB + Pam50_Claudin_low_subtype_Her2 + Pam50_Claudin_low_subtype_Normal + Pam50_Claudin_low_subtype_claudin + Pam50_Claudin_low_subtype_NC + HER2_status_measured_by_SNP6 + Tumor_Other_Histologic_Subtype_Medullary + Hormone_Therapy + Inferred_Menopausal_State + Primary_Tumor_Laterality + PR_Status + Radio_Therapy + Relapse_Free_Status + Gene_classifier_subtype_ERH, df3_tr[fold_ind != j, ], k = i)
+    knn_prob <- predict(knn_model, newdata = df3_va[fold_ind2 == j, ])
+    pred_label <- ifelse(knn_prob > 0.5, 1, 0)
+    roc_rf <- roc(df3_va[fold_ind2 == j, ]$Overall_Survival_Status,pred_label[,2],smooth=F)
+    auc_all3[((j-2)*15) + i - 4] <- auc(roc_rf)
+  }
+}
+which.max(auc_all3)
+knn_model <- knn3(formula3 <- Overall_Survival_Status ~ Age + Cohort + Lymph + Overall_Month + Relapse_Month + Tumor_Stage + Type_of_Breast_Surgery + new_Chemotherapy + Pam50_Claudin_low_subtype_Luma + Pam50_Claudin_low_subtype_LumB + Pam50_Claudin_low_subtype_Her2 + Pam50_Claudin_low_subtype_Normal + Pam50_Claudin_low_subtype_claudin + Pam50_Claudin_low_subtype_NC + HER2_status_measured_by_SNP6 + Tumor_Other_Histologic_Subtype_Medullary + Hormone_Therapy + Inferred_Menopausal_State + Primary_Tumor_Laterality + PR_Status + Radio_Therapy + Relapse_Free_Status + Gene_classifier_subtype_ERH, df3_tr, k = 10)
+knn_prob <- predict(knn_model, newdata = df3_te)
+pred_label <- ifelse(knn_prob > 0.5, 1, 0)
+knn_roc <- roc(df3_te$Overall_Survival_Status,pred_label[,2],smooth=F)
+plot(knn_roc, auc.polygon=T, auc.polygon.col='pink', smooth=F,print.auc=T, max.auc.polygon=T,print.thres.cex=0.8, lty=1,main='ROC',print.thres=T)
+
+knn_auc <- auc(knn_roc)
+knn_auc
 
 ```
 
+#Gradient Boosting Tree
+```{r, warning=FALSE, message=FALSE}
+set.seed(0)
+
+K <- 10
+n_all <- nrow(df3_tr)
+n_all2 <- nrow(df3_va)
+fold_auc_rf<-as.numeric()
+auc_all2 <- c()
+fold_ind <- sample(1:K, n_all, replace = TRUE)
+fold_ind2 <- sample(1:K, n_all2, replace = TRUE) 
+
+for (i in 3:10) {
+  for (j in seq(0.01, 0.1, 0.005)) {
+  gbm_cv<-gbm(formula3,data = df3_tr[fold_ind != i, ], distribution = "multinomial", shrinkage = j )
+  result_gbm<-predict(gbm_cv,df3_va[fold_ind2 == i, ],type="response")
+  pred_label <- ifelse(result_gbm > 0.5, 1, 0)
+  lengthforpredict <- nrow(as.matrix(pred_label))
+  lengthforpredict2 <- lengthforpredict / 2 + 1
+  vector <- as.vector(pred_label)
+  vector <- vector[lengthforpredict2 : lengthforpredict]
+  roc_rf <- roc(df3_va[fold_ind2 == i, ]$Overall_Survival_Status, vector,smooth=F)
+  auc_all2[((i - 3)*18) + j * 200] <- auc(roc_rf)
+  }
+}
+which.max(auc_all2)
+
+
+gbm_cv<-gbm(formula3,data = df3_tr, distribution = "multinomial", shrinkage =  0.04)
+result_gbm<-predict(gbm_cv,df3_te,type="response")
+pred_label <- ifelse(result_gbm > 0.5, 1, 0)
+lengthforpredict <- nrow(as.matrix(pred_label))
+lengthforpredict2 <- lengthforpredict / 2 + 1
+vector <- as.vector(pred_label)
+vector <- vector[lengthforpredict2 : lengthforpredict]
+roc_gbt <- roc(df3_te$Overall_Survival_Status, vector,smooth=F)
+plot(roc_gbt, auc.polygon=T, auc.polygon.col='pink', smooth=F,print.auc=T, max.auc.polygon=T,print.thres.cex=0.8, lty=1,main='ROC',print.thres=T)
+
+gbt_auc <- auc(roc_gbt)
+gbt_auc
+```
+
+
+#Comparison 
+```{r, warning=FALSE, message=FALSE}
+which.max(data.frame(rf_auc, knn_auc, gbt_auc))
+
+
+rf_model <- randomForest(formula3, data = df3_tr, ntree = 30, importance = T)
+pred_prob <- predict(rf_model, newdata = df3_te, type = "response")
+pred_label <- ifelse(pred_prob > 0.5, 1, 0)
+
+plot(rf_model)
+
+```
+
+
+
+Model Present
+```{r}
+#Accuracy
+gbm_confusion<-table(df3_te$Overall_Survival_Status,pred_label,dnn=c('Actual','Predicted'))
+gbm_confusion
+
+lr_accuracy <- (gbm_confusion[1,1] + gbm_confusion[2,2]) / (gbm_confusion[1,1] + gbm_confusion[1,2] + gbm_confusion[2,1] + gbm_confusion[2,2])
+
+lr_precision <- gbm_confusion[2,2] / (gbm_confusion[2,2] + gbm_confusion[1,2])
+
+lr_recall <- gbm_confusion[2,2] / (gbm_confusion[2,2] + gbm_confusion[2,1])
+
+lr_f1 <- 2/(1/lr_precision + 1/lr_recall)
+
+lr_accuracy
+lr_precision
+lr_recall
+lr_f1
+```
 
